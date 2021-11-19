@@ -1,6 +1,8 @@
 package app
 
-import "flag"
+import (
+	"flag"
+)
 
 type (
 	Config struct {
@@ -18,7 +20,7 @@ type (
 )
 
 func LoadConfig() *Config {
-	c := new(Config)
+	c := Config{}
 
 	// Server
 	flag.IntVar(&c.Server.JSONAPIPort, "json-api-port", 8081, "JSON API server port")
@@ -26,5 +28,7 @@ func LoadConfig() *Config {
 	// Logging
 	flag.StringVar(&c.Logging.Level, "logging-level", "error", "Logging level")
 
-	return c
+	flag.Parse()
+
+	return &c
 }
