@@ -7,6 +7,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"gitlab.com/nasapic/base"
 	"gitlab.com/nasapic/urlcollector/internal/app"
 )
 
@@ -23,15 +24,15 @@ var (
 func main() {
 	cfg := app.LoadConfig()
 
+	// Logger
+	log := base.NewLogger(cfg.Logging.Level, appName, "json")
+
 	// Context
 	ctx, cancel := context.WithCancel(context.Background())
 	initExitMonitor(ctx, cancel)
 
 	// App
-	a, err := app.NewApp(appName, cfg)
-	if err != nil {
-		exit(err)
-	}
+	a := app.NewApp(appName, cfg, log)
 
 	// Init service
 	a.Init()
@@ -39,7 +40,7 @@ func main() {
 	// Start service
 	a.Start()
 
-	log.Fatalf("%s stoped: %s", appName, err)
+	log.Info("Service stoped!", "status", "off")
 }
 
 func exit(err error) {
