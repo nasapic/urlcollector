@@ -14,13 +14,14 @@ type (
 func (app *App) NewWebRouter() *base.Router {
 	rt := app.NewJSONAPIRouter()
 
-	app.addJSONAPICollectorRouter(rt)
-
 	return rt
 }
 
 func (app *App) NewJSONAPIRouter() *base.Router {
 	rt := base.NewRouter("json-api-home-router")
+
+	app.addJSONAPICollectorRouter(rt)
+
 	return rt
 }
 
@@ -30,6 +31,7 @@ func (t textResponse) write(w http.ResponseWriter, r *http.Request) {
 
 func (app *App) addJSONAPICollectorRouter(parent chi.Router) chi.Router {
 	return parent.Route("/pictures", func(child chi.Router) {
+		child.Get("/", app.JSONAPIEndpoint.SearchURLs)
 		child.Get("/?from={from}&to={to}", app.JSONAPIEndpoint.SearchURLs)
 	})
 }

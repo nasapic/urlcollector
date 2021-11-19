@@ -25,7 +25,7 @@ func NewApp(name string, cfg *Config, log base.Logger) *App {
 	app := App{
 		App:             base.NewApp(name, log),
 		Config:          cfg,
-		JSONAPIEndpoint: jsonapi.NewEndpoint("json-api-endpoint"),
+		JSONAPIEndpoint: jsonapi.NewEndpoint("json-api-endpoint", log),
 	}
 
 	// Router
@@ -60,7 +60,7 @@ func (app *App) Stop() {
 func (app *App) StartJSONAPI() error {
 	p := fmt.Sprintf(":%d", app.Config.Server.JSONAPIPort)
 
-	app.Log.Info("JSON API Server initializing...", "port", p)
+	app.Log().Info("JSON API Server starting...", "port", p)
 
 	err := http.ListenAndServe(p, app.JSONAPIRouter)
 
