@@ -10,8 +10,8 @@ type (
 	}
 )
 
-func NewEndpoint(name string) *Endpoint {
+func NewEndpoint(name string, log base.Logger) *Endpoint {
 	return &Endpoint{
-		Endpoint: base.NewEndpoint(name),
+		Endpoint: base.NewEndpoint(name, log),
 	}
 }
