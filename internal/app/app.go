@@ -2,7 +2,6 @@ package app
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"sync"
 
@@ -15,24 +14,24 @@ type (
 	App struct {
 		*base.App
 
-		Config
+		*Config
 
 		JSONAPIEndpoint *jsonapi.Endpoint
 	}
 )
 
 // NewApp initializes new App worker instance
-func NewApp(name string, cfg *Config) (*App, error) {
+func NewApp(name string, cfg *Config, log base.Logger) *App {
 	app := App{
-		App:             base.NewApp(name),
-		Config:          Config{},
+		App:             base.NewApp(name, log),
+		Config:          cfg,
 		JSONAPIEndpoint: jsonapi.NewEndpoint("json-api-endpoint"),
 	}
 
 	// Router
 	app.JSONAPIRouter = app.NewJSONAPIRouter()
 
-	return &app, nil
+	return &app
 }
 
 // Init app
@@ -61,7 +60,7 @@ func (app *App) Stop() {
 func (app *App) StartJSONAPI() error {
 	p := fmt.Sprintf(":%d", app.Config.Server.JSONAPIPort)
 
-	log.Printf("JSON API Server initializing at port %s", p)
+	app.Log.Info("JSON API Server initializing...", "port", p)
 
 	err := http.ListenAndServe(p, app.JSONAPIRouter)
 
