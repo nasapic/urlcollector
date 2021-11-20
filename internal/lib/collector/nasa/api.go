@@ -13,7 +13,8 @@ import (
 )
 
 type (
-	URL struct {
+	API struct {
+		opts Options
 		from time.Time
 		to   time.Time
 	}
@@ -23,10 +24,22 @@ type (
 	}
 )
 
-func (url *URL) GetBetweenDates(from, to time.Time) Result {
+type (
+	Options struct {
+		APIKey string
+	}
+)
+
+func NewAPI(opts Options) *API {
+	return &API{
+		opts: opts,
+	}
+}
+
+func (api API) GetBetweenDates(from, to time.Time) collector.Result {
 	return Result{}
 }
 
-func (r *Result) GetList() collector.URLS {
+func (r Result) GetList() collector.URLS {
 	return r.list
 }

@@ -10,7 +10,7 @@ package collector
 import "time"
 
 type (
-	URL interface {
+	API interface {
 		GetBetweenDates(from, to time.Time) Result
 	}
 
