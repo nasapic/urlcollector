@@ -7,6 +7,7 @@ import (
 
 	"gitlab.com/nasapic/base"
 	"gitlab.com/nasapic/urlcollector/internal/jsonapi"
+	"gitlab.com/nasapic/urlcollector/internal/service"
 )
 
 type (
@@ -21,11 +22,11 @@ type (
 )
 
 // NewApp initializes new App worker instance
-func NewApp(name string, cfg *Config, log base.Logger) *App {
+func NewApp(name string, cfg *Config, urlSvc *service.URLService, log base.Logger) *App {
 	app := App{
 		App:             base.NewApp(name, log),
 		Config:          cfg,
-		JSONAPIEndpoint: jsonapi.NewEndpoint("json-api-endpoint", log),
+		JSONAPIEndpoint: jsonapi.NewEndpoint("json-api-endpoint", urlSvc, log),
 	}
 
 	// Router

@@ -6,13 +6,15 @@ import (
 )
 
 type (
-	URL struct {
+	URLService struct {
 		base.Worker
+		CollectorAPI collector.API
 	}
 )
 
-func NewURL(name string, urlCollector collector.URL, log base.Logger) *URL {
-	return &URL{
-		Worker: base.NewWorker(name, log),
+func NewURLService(name string, collectorAPI collector.API, log base.Logger) *URLService {
+	return &URLService{
+		Worker:       base.NewWorker(name, log),
+		CollectorAPI: collectorAPI,
 	}
 }
