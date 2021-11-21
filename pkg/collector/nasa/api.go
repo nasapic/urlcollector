@@ -7,11 +7,11 @@ their reuse.
 package nasa
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
-	"gitlab.com/nasapic/urlcollector/internal/transport"
 	"gitlab.com/nasapic/urlcollector/pkg/collector"
 )
 
@@ -66,21 +66,41 @@ func (api API) GetBetweenDates(from, to time.Time) collector.Result {
 			break
 		}
 
-		fmt.Println(toDateString(date))
+		//fmt.Println(toDateString(date))
+
+		api.getByDate(date)
 	}
 
 	return Result{}
 }
 
-func (api API) getByDate(sReq *transport.SearchRequest) (picURL string, err error) {
-	url := fmt.Sprintf("%s/api_key=%s&date=", baseURL, api.opts.APIKey)
-
-	_, err = api.client.get(url)
-	if err != nil {
-		return picURL, err
+func (api API) getByDate(date time.Time) (picURL map[string]string, err error) {
+	if date.IsZero() {
+		return picURL, errors.New("Invalid date")
 	}
 
-	return "", nil
+	dateStr := toDateString(date)
+
+	url := fmt.Sprintf("%s/?api_key=%s&date=%s", baseURL, api.opts.APIKey, dateStr)
+
+	res, err := api.client.get(url)
+	if err != nil {
+		return picURL, fmt.Errorf("Error retrievieng picture URL: %w", err)
+	}
+
+	fmt.Printf("Request:\n%+v\n", res)
+	// NOTE: Sample JSON response
+	// {
+	// 	"date":"2020-01-01",
+	// 	"explanation":"Why is Betelgeuse fading?  No one knows.  Betelgeuse, one of the brightest and most recognized stars in the night sky, is only half as bright as it used to be only five months ago.  Such variability is likely just  normal behavior for this famously variable supergiant, but the recent dimming has rekindled discussion on how long it may be before Betelgeuse does go supernova.  Known for its red color, Betelgeuse is one of the few stars to be resolved by modern telescopes, although only barely.  The featured artist's illustration imagines how Betelgeuse might look up close. Betelgeuse is thought to have a complex and tumultuous surface that frequently throws impressive flares.  Were it to replace the Sun (not recommended), its surface would extend out near the orbit of Jupiter, while gas plumes would bubble out past Neptune.  Since Betelgeuse is about 700 light years away, its eventual supernova will not endanger life on Earth even though its brightness may rival that of a full Moon.  Astronomers -- both amateur and professional -- will surely continue to monitor Betelgeuse as this new decade unfolds.    Free Presentation: APOD Editor to show best astronomy images of 2019 -- and the decade -- in NYC on January 3",
+	// 	"hdurl":"https://apod.nasa.gov/apod/image/2001/BetelgeuseImagined_EsoCalcada_2662.jpg",
+	// 	"media_type":"image",
+	// 	"service_version":"v1",
+	// 	"title":"Betelgeuse Imagined",
+	// 	"url":"https://apod.nasa.gov/apod/image/2001/BetelgeuseImagined_EsoCalcada_960.jpg"
+	// }
+
+	return picURL, nil
 }
 
 func (r Result) GetList() collector.URLS {
