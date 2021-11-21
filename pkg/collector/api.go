@@ -13,7 +13,7 @@ import (
 
 type (
 	API interface {
-		GetBetweenDates(from, to time.Time) Result
+		GetBetweenDates(from, to time.Time) (r Result, err error)
 	}
 
 	Result interface {
@@ -23,6 +23,6 @@ type (
 
 type (
 	URLS struct {
-		list []string
+		List []string
 	}
 )
