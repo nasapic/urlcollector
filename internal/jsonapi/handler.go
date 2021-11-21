@@ -2,15 +2,16 @@ package jsonapi
 
 import (
 	"net/http"
+
+	"gitlab.com/nasapic/urlcollector/internal/transport"
 )
 
 // SearchURLs endpoint
 func (ep *Endpoint) SearchURLs(w http.ResponseWriter, r *http.Request) {
+	// Transport
+	searchReq := transport.NewSearchRequest(r)
 
-	from := r.URL.Query().Get("from")
-	to := r.URL.Query().Get("to")
+	ep.Log().Debug("SearchURLs", "searchReq", searchReq)
 
-	ep.Log().Debug("SearchURLs", "from", from, "to", to)
-
-	panic("not implemented")
+	panic("not fully implemented")
 }
