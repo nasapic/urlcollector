@@ -17,12 +17,6 @@ type (
 	}
 
 	Result interface {
-		GetList() URLS
-	}
-)
-
-type (
-	URLS struct {
-		List []string
+		GetList() []string
 	}
 )

@@ -1,7 +1,9 @@
 package transport
 
 import (
+	"errors"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -43,7 +45,7 @@ func (sr *SearchRequest) ToDate() time.Time {
 }
 
 func (sr *SearchRequest) ParseInput() (hasErrors bool) {
-	sr.clearErrors()
+	sr.ClearErrors()
 
 	date, err := toTime(sr.From)
 	if err != nil {
@@ -65,12 +67,57 @@ func (sr *SearchRequest) ParseInput() (hasErrors bool) {
 }
 
 func (sr *SearchRequest) Validate() (hasErrors bool) {
-	// At the moment it only validates parsing errors.
-	// Implement more complex date validations.
+	// At the moment it only validates parsing errors
+	// and do a simple dates checks.
+	// NOTE: It may be a good idea to get rid of previous parsing errors.
+	sr.ClearErrors()
+
+	if sr.fromDate.IsZero() {
+		sr.Errors["from"] = errors.New("invalid 'from' date")
+	}
+
+	if sr.toDate.IsZero() {
+		sr.Errors["to"] = errors.New("invalid 'to' date")
+	}
+
+	if sr.toDate.Before(sr.fromDate) {
+		sr.Errors["from"] = errors.New("'from' date should be prior to 'to' date")
+		sr.Errors["to"] = errors.New("'to' date should be after 'from' date")
+	}
+
 	return len(sr.Errors) > 0
 }
 
-func (sr *SearchRequest) clearErrors() {
+func (sr *SearchRequest) Error() error {
+	var sb strings.Builder
+
+	last := len(sr.Errors) - 1
+	if last < 0 {
+		return nil
+	}
+
+	pos := 0
+	sep := ""
+	for _, e := range sr.Errors {
+		sb.WriteString(sep)
+		sb.WriteString(e.Error())
+		if pos == last {
+			sep = ""
+		} else {
+			sep = ", "
+		}
+
+		pos++
+	}
+
+	return errors.New(sb.String())
+}
+
+func (sr *SearchRequest) HasErrors() (hasErrors bool) {
+	return len(sr.Errors) > 0
+}
+
+func (sr *SearchRequest) ClearErrors() {
 	sr.Errors = make(map[string]error)
 }
 

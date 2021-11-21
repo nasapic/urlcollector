@@ -37,7 +37,7 @@ type (
 	}
 
 	Result struct {
-		list collector.URLS
+		list []string
 	}
 )
 
@@ -95,7 +95,7 @@ func (api API) GetBetweenDates(from, to time.Time) (cr collector.Result, err err
 				return nil
 			}
 
-			//fmt.Println(toDateString(date))
+			// NOTE: Remove this fmt.Println(toDateString(date))
 
 			ar, err := api.getByDate(date)
 			if err != nil {
@@ -112,12 +112,10 @@ func (api API) GetBetweenDates(from, to time.Time) (cr collector.Result, err err
 	}
 
 	cr = &Result{
-		list: collector.URLS{
-			List: list,
-		},
+		list: list,
 	}
 
-	fmt.Printf("\nResult:\n%+v\n", cr)
+	// NOTE: Remove this fmt.Printf("\nResult:\n%+v\n", cr)
 
 	return cr, nil
 }
@@ -152,13 +150,13 @@ func (api API) getByDate(date time.Time) (ar *APIResponse, err error) {
 	return ar, nil
 }
 
-func (r Result) GetList() collector.URLS {
+func (r Result) GetList() []string {
 	return r.list
 }
 
 // HTTP Client implementation
 func (hc *httpClient) get(url string) (res *http.Response, err error) {
-	res, err = hc.Client.Get(url)
+	//res, err = hc.Client.Get(url)
 	if err != nil {
 		return res, err
 	}
