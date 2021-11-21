@@ -31,6 +31,7 @@ type (
 type (
 	Options struct {
 		APIKey        string
+		MaxRequests   int
 		TimeoutInSecs int
 	}
 )
@@ -59,6 +60,15 @@ func NewAPI(opts Options) *API {
 }
 
 func (api API) GetBetweenDates(from, to time.Time) collector.Result {
+	for dateElement := rangeDates(from, to); ; {
+		date := dateElement()
+		if date.IsZero() {
+			break
+		}
+
+		fmt.Println(toDateString(date))
+	}
+
 	return Result{}
 }
 

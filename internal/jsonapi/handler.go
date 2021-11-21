@@ -13,5 +13,7 @@ func (ep *Endpoint) SearchURLs(w http.ResponseWriter, r *http.Request) {
 
 	ep.Log().Debug("SearchURLs", "searchReq", searchReq)
 
+	ep.URLService.GetBetweenDates(searchReq)
+
 	panic("not fully implemented")
 }
