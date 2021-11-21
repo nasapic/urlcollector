@@ -7,7 +7,9 @@ reuse.
 */
 package collector
 
-import "time"
+import (
+	"time"
+)
 
 type (
 	API interface {
