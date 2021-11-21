@@ -9,8 +9,8 @@ import (
 
 	"gitlab.com/nasapic/base"
 	"gitlab.com/nasapic/urlcollector/internal/app"
-	"gitlab.com/nasapic/urlcollector/internal/lib/collector/nasa"
 	"gitlab.com/nasapic/urlcollector/internal/service"
+	"gitlab.com/nasapic/urlcollector/pkg/collector/nasa"
 )
 
 type contextKey string
@@ -33,11 +33,12 @@ func main() {
 	ctx, cancel := context.WithCancel(context.Background())
 	initExitMonitor(ctx, cancel)
 
-	// Service
+	// NASA API
 	nasaAPI := nasa.NewAPI(nasa.Options{
 		APIKey: cfg.NASAAPI.APIKEY,
 	})
 
+	// Service
 	svc := service.NewURLService("url-service", nasaAPI, log)
 
 	// App
