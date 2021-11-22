@@ -20,19 +20,30 @@ func NewURLService(name string, collectorAPI collector.API, log base.Logger) *UR
 	}
 }
 
-func (urlSvc *URLService) GetBetweenDates(sReq *transport.SearchRequest) (sRes *transport.SearchResponse, err error) {
+func (urlSvc *URLService) GetBetweenDates(searchReq *transport.SearchRequest) (searchRes *transport.SearchResponse, err error) {
 	// NOTE: If there are no validation errors we can use the original string
 	// representation of from and to dates and avoid converting them again from
-	// time.Time representation used for validations.
-	sReq.Validate()
-	if sReq.HasErrors() || true {
-		urlSvc.Log().Debug("URLService GetBetweenDates", "searchRequest", sReq, "errors", sReq.Error())
-		return sRes, sReq.Error()
+	// time.Time representation used for transport validations.
+	searchReq.Validate()
+
+	urlSvc.Log().Debug("URLService GetBetweenDates", "searchRequest", searchReq)
+
+	if searchReq.HasErrors() {
+		urlSvc.Log().Debug("URLService GetBetweenDates", "errors", searchReq.Error())
+		return searchRes, searchReq.Error()
 	}
 
-	result, err := urlSvc.CollectorAPI.GetBetweenDates(sReq.FromDate(), sReq.ToDate())
+	result, err := urlSvc.CollectorAPI.GetBetweenDates(searchReq.FromDate(), searchReq.ToDate())
+	if err != nil {
+		urlSvc.Log().Debug("URLService GetBetweenDates", "errors", err)
+		return searchRes, err
+	}
 
-	urlSvc.Log().Debug("GetBetweenDates", "result", result)
+	searchRes = &transport.SearchResponse{
+		URLS: result.GetList(),
+	}
 
-	return &transport.SearchResponse{}, nil
+	urlSvc.Log().Debug("URLService GetBetweenDates", "searchRes", searchRes)
+
+	return searchRes, nil
 }
