@@ -34,6 +34,7 @@ func (urlSvc *URLService) GetBetweenDates(searchReq *transport.SearchRequest) (s
 	}
 
 	result, err := urlSvc.CollectorAPI.GetBetweenDates(searchReq.FromDate(), searchReq.ToDate())
+
 	if err != nil {
 		urlSvc.Log().Debug("URLService GetBetweenDates", "errors", err)
 		return searchRes, err
