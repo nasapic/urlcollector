@@ -10,8 +10,6 @@ type (
 		*base.Endpoint
 
 		URLService *service.URLService
-
-		Queue *Queue
 	}
 
 	Options struct {
@@ -23,6 +21,5 @@ func NewEndpoint(name string, urlSvc *service.URLService, opts Options, log base
 	return &Endpoint{
 		Endpoint:   base.NewEndpoint(name, log),
 		URLService: urlSvc,
-		Queue:      NewQueue(opts.MaxRequestesPerSec),
 	}
 }
