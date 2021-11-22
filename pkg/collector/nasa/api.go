@@ -95,8 +95,6 @@ func (api API) GetBetweenDates(from, to time.Time) (cr collector.Result, err err
 				return nil
 			}
 
-			// NOTE: Remove this fmt.Println(toDateString(date))
-
 			ar, err := api.getByDate(date)
 			if err != nil {
 				return fmt.Errorf("error retrieving URL: %w", err)
@@ -115,8 +113,6 @@ func (api API) GetBetweenDates(from, to time.Time) (cr collector.Result, err err
 		list: list,
 	}
 
-	// NOTE: Remove this fmt.Printf("\nResult:\n%+v\n", cr)
-
 	return cr, nil
 }
 
@@ -133,8 +129,6 @@ func (api API) getByDate(date time.Time) (ar *APIResponse, err error) {
 	if err != nil {
 		return ar, fmt.Errorf("Error retrievieng picture URL: %w", err)
 	}
-
-	fmt.Printf("Request:\n%+v\n", res)
 
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
@@ -156,7 +150,7 @@ func (r Result) GetList() []string {
 
 // HTTP Client implementation
 func (hc *httpClient) get(url string) (res *http.Response, err error) {
-	//res, err = hc.Client.Get(url)
+	res, err = hc.Client.Get(url)
 	if err != nil {
 		return res, err
 	}

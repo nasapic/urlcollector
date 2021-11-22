@@ -32,6 +32,6 @@ func (t textResponse) write(w http.ResponseWriter, r *http.Request) {
 func (app *App) addJSONAPICollectorRouter(parent chi.Router) chi.Router {
 	return parent.Route("/pictures", func(child chi.Router) {
 		child.Get("/", app.JSONAPIEndpoint.SearchURLs)
-		child.Get("/?from={from}&to={to}", app.JSONAPIEndpoint.SearchURLs)
+		//child.Get("/?from={from}&to={to}", app.JSONAPIEndpoint.SearchURLs)
 	})
 }

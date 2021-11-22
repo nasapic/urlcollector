@@ -1,6 +1,8 @@
 package jsonapi
 
 import (
+	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"gitlab.com/nasapic/urlcollector/internal/transport"
@@ -11,9 +13,23 @@ func (ep *Endpoint) SearchURLs(w http.ResponseWriter, r *http.Request) {
 	// Transport
 	searchReq := transport.NewSearchRequest(r)
 
-	ep.Log().Debug("SearchURLs", "searchReq", searchReq)
+	ep.Log().Debug("Endpoint SearchURLS", "searchReq", searchReq)
 
-	ep.URLService.GetBetweenDates(searchReq)
+	// Service call
+	searchRes, err := ep.URLService.GetBetweenDates(searchReq)
+	if err != nil {
+		// Error response
+		return
+	}
 
-	panic("not fully implemented")
+	// OK response marshalling
+	jsonRes, err := json.MarshalIndent(searchRes, "", "  ")
+	if err != nil {
+		// Error response
+		return
+	}
+
+	ep.Log().Debug("Endpoint SearchURLS", "searchRes", searchRes)
+
+	fmt.Fprintf(w, string(jsonRes))
 }
