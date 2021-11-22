@@ -51,7 +51,7 @@ func main() {
 	// Start service
 	a.Start()
 
-	log.Info("Service stoped!", "status", "off")
+	log.Info("Service stoped!")
 }
 
 func exit(err error) {

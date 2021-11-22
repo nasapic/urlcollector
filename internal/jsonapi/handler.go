@@ -13,22 +13,19 @@ func (ep *Endpoint) SearchURLs(w http.ResponseWriter, r *http.Request) {
 
 	ep.Log().Debug("Endpoint SearchURLS", "searchReq", searchReq)
 
-	job := NewJob(r, ep.URLService.GetBetweenDates, searchReq)
-
-	job.Process()
-
-	if job.Error != nil {
-		ep.sendErrorResponse(w, r, "Cannot get pictures", job.Result.Error)
+	res, err := ep.URLService.GetBetweenDates(searchReq)
+	if err != nil {
+		ep.sendErrorResponse(w, r, "Cannot get pictures", err)
 		return
 	}
 
-	jsonStr, err := job.Result.Result.Marshall()
+	jsonStr, err := res.Marshall()
 	if err != nil {
 		ep.sendErrorResponse(w, r, "Error marshalling search response", err)
 		return
 	}
 
-	ep.Log().Debug("Endpoint SearchURLS", "search-result", job.Result.Result)
+	ep.Log().Debug("Endpoint SearchURLS", "search-result", res)
 
 	fmt.Fprintf(w, jsonStr)
 }
