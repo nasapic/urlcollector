@@ -19,5 +19,5 @@ run:
 	./bin/urlcollector -json-api-port 8080 -nasa-api-key-envar API_KEY -logging-level all
 
 setsampleapikey:
-	export API_KEY="3456f957-3941-4dd5-be73-6e064736e17b"
+	export API_KEY="DEMO_KEY"
 

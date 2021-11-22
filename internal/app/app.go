@@ -23,10 +23,14 @@ type (
 
 // NewApp initializes new App worker instance
 func NewApp(name string, cfg *Config, urlSvc *service.URLService, log base.Logger) *App {
+	opts := jsonapi.Options{
+		MaxRequestesPerSec: cfg.MaxRequests,
+	}
+
 	app := App{
 		App:             base.NewApp(name, log),
 		Config:          cfg,
-		JSONAPIEndpoint: jsonapi.NewEndpoint("json-api-endpoint", urlSvc, log),
+		JSONAPIEndpoint: jsonapi.NewEndpoint("json-api-endpoint", urlSvc, opts, log),
 	}
 
 	// Router

@@ -44,7 +44,6 @@ type (
 type (
 	Options struct {
 		APIKey        string
-		MaxRequests   int
 		TimeoutInSecs int
 	}
 )

@@ -1,7 +1,6 @@
 package jsonapi
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
@@ -10,26 +9,42 @@ import (
 
 // SearchURLs endpoint
 func (ep *Endpoint) SearchURLs(w http.ResponseWriter, r *http.Request) {
-	// Transport
 	searchReq := transport.NewSearchRequest(r)
 
 	ep.Log().Debug("Endpoint SearchURLS", "searchReq", searchReq)
 
-	// Service call
-	searchRes, err := ep.URLService.GetBetweenDates(searchReq)
-	if err != nil {
-		// Error response
+	job := NewJob(r, ep.URLService.GetBetweenDates, searchReq)
+
+	job.Process()
+
+	if job.Error != nil {
+		ep.sendErrorResponse(w, r, "Cannot get pictures", job.Result.Error)
 		return
 	}
 
-	// OK response marshalling
-	jsonRes, err := json.MarshalIndent(searchRes, "", "  ")
+	jsonStr, err := job.Result.Result.Marshall()
 	if err != nil {
-		// Error response
+		ep.sendErrorResponse(w, r, "Error marshalling search response", err)
 		return
 	}
 
-	ep.Log().Debug("Endpoint SearchURLS", "searchRes", searchRes)
+	ep.Log().Debug("Endpoint SearchURLS", "search-result", job.Result.Result)
 
-	fmt.Fprintf(w, string(jsonRes))
+	fmt.Fprintf(w, jsonStr)
+}
+
+// Helpers
+
+func (ep *Endpoint) sendErrorResponse(w http.ResponseWriter, r *http.Request, message string, err error) {
+	errRes := transport.ErrorResponse{Error: err.Error()}
+
+	errStr, mErr := errRes.Marshall()
+	if mErr != nil {
+		ep.Log().Error(mErr, "Error marshalling response", "original-error", err)
+		return
+	}
+
+	ep.Log().Error(err, message)
+
+	fmt.Fprintf(w, errStr)
 }

@@ -36,7 +36,6 @@ func main() {
 	// NASA API
 	nasaAPI := nasa.NewAPI(nasa.Options{
 		APIKey:        cfg.NASAAPI.APIKEY,
-		MaxRequests:   cfg.NASAAPI.MaxRequests,
 		TimeoutInSecs: cfg.NASAAPI.TimeoutInSecs,
 	})
 
