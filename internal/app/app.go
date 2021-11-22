@@ -2,12 +2,12 @@ package app
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"sync"
 
 	"gitlab.com/nasapic/base"
 	"gitlab.com/nasapic/urlcollector/internal/jsonapi"
+	"gitlab.com/nasapic/urlcollector/internal/service"
 )
 
 type (
@@ -15,24 +15,24 @@ type (
 	App struct {
 		*base.App
 
-		Config
+		*Config
 
 		JSONAPIEndpoint *jsonapi.Endpoint
 	}
 )
 
 // NewApp initializes new App worker instance
-func NewApp(name string, cfg *Config) (*App, error) {
+func NewApp(name string, cfg *Config, urlSvc *service.URLService, log base.Logger) *App {
 	app := App{
-		App:             base.NewApp(name),
-		Config:          Config{},
-		JSONAPIEndpoint: jsonapi.NewEndpoint("json-api-endpoint"),
+		App:             base.NewApp(name, log),
+		Config:          cfg,
+		JSONAPIEndpoint: jsonapi.NewEndpoint("json-api-endpoint", urlSvc, log),
 	}
 
 	// Router
 	app.JSONAPIRouter = app.NewJSONAPIRouter()
 
-	return &app, nil
+	return &app
 }
 
 // Init app
@@ -61,7 +61,7 @@ func (app *App) Stop() {
 func (app *App) StartJSONAPI() error {
 	p := fmt.Sprintf(":%d", app.Config.Server.JSONAPIPort)
 
-	log.Printf("JSON API Server initializing at port %s", p)
+	app.Log().Info("JSON API Server starting...", "port", p)
 
 	err := http.ListenAndServe(p, app.JSONAPIRouter)
 
