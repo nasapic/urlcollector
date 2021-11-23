@@ -37,7 +37,8 @@ func main() {
 	nasaAPI := nasa.NewAPI(nasa.Options{
 		APIKey:        cfg.NASAAPI.APIKEY,
 		TimeoutInSecs: cfg.NASAAPI.TimeoutInSecs,
-	})
+		MaxConcurrent: cfg.NASAAPI.MaxConcurrent,
+	}, log)
 
 	// Service
 	svc := service.NewURLService("url-service", nasaAPI, log)
