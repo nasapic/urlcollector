@@ -1,35 +1,47 @@
 package jsonapi
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
 
-	"gitlab.com/nasapic/urlcollector/internal/transport"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/urlcollector/internal/transport"
 )
 
 // SearchURLs endpoint
 func (ep *Endpoint) SearchURLs(w http.ResponseWriter, r *http.Request) {
-	// Transport
 	searchReq := transport.NewSearchRequest(r)
 
 	ep.Log().Debug("Endpoint SearchURLS", "searchReq", searchReq)
 
-	// Service call
-	searchRes, err := ep.URLService.GetBetweenDates(searchReq)
+	res, err := ep.URLService.GetBetweenDates(searchReq)
 	if err != nil {
-		// Error response
+		ep.sendErrorResponse(w, r, "Cannot get pictures", err)
 		return
 	}
 
-	// OK response marshalling
-	jsonRes, err := json.MarshalIndent(searchRes, "", "  ")
+	jsonStr, err := res.Marshall()
 	if err != nil {
-		// Error response
+		ep.sendErrorResponse(w, r, "Error marshalling search response", err)
 		return
 	}
 
-	ep.Log().Debug("Endpoint SearchURLS", "searchRes", searchRes)
+	ep.Log().Debug("Endpoint SearchURLS", "search-result", res)
 
-	fmt.Fprintf(w, string(jsonRes))
+	fmt.Fprintf(w, jsonStr)
+}
+
+// Helpers
+
+func (ep *Endpoint) sendErrorResponse(w http.ResponseWriter, r *http.Request, message string, err error) {
+	errRes := transport.ErrorResponse{Error: err.Error()}
+
+	errStr, mErr := errRes.Marshall()
+	if mErr != nil {
+		ep.Log().Error(mErr, "Error marshalling response", "original-error", err)
+		return
+	}
+
+	ep.Log().Error(err, message)
+
+	fmt.Fprintf(w, errStr)
 }

@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"gitlab.com/nasapic/base"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/base"
 )
 
 type (
@@ -20,6 +20,10 @@ func (app *App) NewWebRouter() *base.Router {
 func (app *App) NewJSONAPIRouter() *base.Router {
 	rt := base.NewRouter("json-api-home-router")
 
+	// NOTE: Make these values configurables
+	rt.SetHourlyRate(30)
+	rt.SetDailyRate(50)
+
 	app.addJSONAPICollectorRouter(rt)
 
 	return rt
@@ -32,6 +36,5 @@ func (t textResponse) write(w http.ResponseWriter, r *http.Request) {
 func (app *App) addJSONAPICollectorRouter(parent chi.Router) chi.Router {
 	return parent.Route("/pictures", func(child chi.Router) {
 		child.Get("/", app.JSONAPIEndpoint.SearchURLs)
-		//child.Get("/?from={from}&to={to}", app.JSONAPIEndpoint.SearchURLs)
 	})
 }

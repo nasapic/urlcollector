@@ -25,12 +25,15 @@ import (
 	"net/http"
 	"time"
 
-	"gitlab.com/nasapic/urlcollector/pkg/collector"
+	"github.com/google/uuid"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/base"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/urlcollector/pkg/collector"
 )
 
 type (
 	API struct {
 		opts   Options
+		log    base.Logger
 		from   time.Time
 		to     time.Time
 		client *httpClient
@@ -44,8 +47,8 @@ type (
 type (
 	Options struct {
 		APIKey        string
-		MaxRequests   int
 		TimeoutInSecs int
+		MaxConcurrent int
 	}
 )
 
@@ -63,6 +66,20 @@ type (
 )
 
 type (
+	Job struct {
+		ID   uuid.UUID
+		Date time.Time
+	}
+
+	JobResult struct {
+		ID     uuid.UUID
+		Date   time.Time
+		Result *APIResponse
+		Error  error
+	}
+)
+
+type (
 	// NOTE: A future update could include retries with exponential back off.
 	httpClient struct {
 		*http.Client
@@ -70,13 +87,15 @@ type (
 )
 
 const (
-	baseURL           = "https://api.nasa.gov/planetary/apod"
-	dateFormat string = "2006-01-02"
+	baseURL                   = "https://api.nasa.gov/planetary/apod"
+	dateFormat         string = "2006-01-02"
+	chanClearanceIndex        = 15
 )
 
-func NewAPI(opts Options) *API {
+func NewAPI(opts Options, log base.Logger) *API {
 	return &API{
 		opts: opts,
+		log:  log,
 		client: &httpClient{
 			&http.Client{
 				Timeout: time.Second * time.Duration(opts.TimeoutInSecs),
@@ -85,8 +104,8 @@ func NewAPI(opts Options) *API {
 	}
 }
 
-func (api API) GetBetweenDates(from, to time.Time) (cr collector.Result, err error) {
-	aarr := []*APIResponse{}
+func (api *API) GetBetweenDates(from, to time.Time) (cr collector.Result, err error) {
+	dates := []time.Time{}
 
 	func() error {
 		for dateElement := rangeDates(from, to); ; {
@@ -95,18 +114,54 @@ func (api API) GetBetweenDates(from, to time.Time) (cr collector.Result, err err
 				return nil
 			}
 
-			ar, err := api.getByDate(date)
-			if err != nil {
-				return fmt.Errorf("error retrieving URL: %w", err)
-			}
-
-			aarr = append(aarr, ar)
+			dates = append(dates, date)
 		}
 	}()
 
+	chanSize := chanSafeSize(len(dates))
+	max := api.opts.MaxConcurrent
+
+	jobsChan := make(chan Job, chanSize)
+	resultsChan := make(chan JobResult, chanSize)
+
+	// Create API callers
+	for c := 1; c <= max; c++ {
+		id := uuid.New()
+		go api.caller(id, jobsChan, resultsChan)
+	}
+
+	// Send Jobs to API callers
+	jobIDs := []uuid.UUID{}
+
+	for _, date := range dates {
+		id := uuid.New()
+
+		job := Job{
+			ID:   id,
+			Date: date,
+		}
+
+		select {
+		case jobsChan <- job:
+			jobIDs = append(jobIDs, id)
+		default:
+			err := errors.New("max allowed concurrent requests reached")
+			api.Log().Error(err, "Max allowed concurrent requests reached", "max-value", max)
+		}
+	}
+	close(jobsChan)
+
+	// Collect results
 	list := []string{}
-	for _, ar := range aarr {
-		list = append(list, ar.URL)
+	for range jobIDs {
+
+		res := <-resultsChan
+		if res.Error != nil {
+			api.Log().Error(err, "API call error", "error", res.Error, "job-id", res.ID, "picture-date", res.Date)
+			continue
+		}
+
+		list = append(list, res.Result.URL)
 	}
 
 	cr = &Result{
@@ -116,7 +171,7 @@ func (api API) GetBetweenDates(from, to time.Time) (cr collector.Result, err err
 	return cr, nil
 }
 
-func (api API) getByDate(date time.Time) (ar *APIResponse, err error) {
+func (api *API) getByDate(date time.Time) (ar *APIResponse, err error) {
 	if date.IsZero() {
 		return ar, errors.New("Invalid date")
 	}
@@ -125,17 +180,19 @@ func (api API) getByDate(date time.Time) (ar *APIResponse, err error) {
 
 	url := fmt.Sprintf("%s/?api_key=%s&date=%s", baseURL, api.opts.APIKey, dateStr)
 
+	api.Log().Debug("Getting URL", "url", url)
+
 	res, err := api.client.get(url)
 	if err != nil {
 		return ar, fmt.Errorf("Error retrievieng picture URL: %w", err)
 	}
 
+	defer res.Body.Close()
+
 	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
 		return ar, err
 	}
-
-	defer res.Body.Close()
 
 	if res.StatusCode == http.StatusOK {
 		json.Unmarshal(body, &ar)
@@ -146,6 +203,21 @@ func (api API) getByDate(date time.Time) (ar *APIResponse, err error) {
 
 func (r Result) GetList() []string {
 	return r.list
+}
+
+func (api API) caller(id uuid.UUID, jobs <-chan Job, results chan<- JobResult) {
+	for j := range jobs {
+		ar, err := api.getByDate(j.Date)
+		results <- JobResult{
+			ID:     id,
+			Result: ar,
+			Error:  err,
+		}
+	}
+}
+
+func (api *API) Log() base.Logger {
+	return api.log
 }
 
 // HTTP Client implementation
@@ -179,6 +251,10 @@ func dateRangeFunc(from, to time.Time) (drFunc func() time.Time) {
 		from = from.AddDate(0, 0, 1)
 		return date
 	}
+}
+
+func chanSafeSize(toProcQty int) int {
+	return toProcQty * (1 + chanClearanceIndex/100)
 }
 
 func toDateString(date time.Time) (dateString string) {

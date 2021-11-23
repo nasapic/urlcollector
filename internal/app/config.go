@@ -23,11 +23,11 @@ type (
 	}
 
 	NASAAPI struct {
-		APIKEYEnvar      string
-		APIKEY           string
-		MaxRequestsEnvar string
-		MaxRequests      int
-		TimeoutInSecs    int
+		APIKEYEnvar        string
+		APIKEY             string
+		MaxConcurrentEnvar string
+		MaxConcurrent      int
+		TimeoutInSecs      int
 	}
 )
 
@@ -48,8 +48,8 @@ func LoadConfig() *Config {
 	flag.StringVar(&cfg.Logging.Level, "logging-level", "error", "Logging level")
 
 	// NASA API
-	flag.StringVar(&cfg.NASAAPI.APIKEYEnvar, "nasa-api-key-envar", "", "NASA API Key envar")
-	flag.StringVar(&cfg.NASAAPI.MaxRequestsEnvar, "nasa-api-concurrent-requests-envar", "CONCURRENT_REQUESTS", "NASA API max concurrent requests envar")
+	flag.StringVar(&cfg.NASAAPI.APIKEYEnvar, "nasa-api-key-envar", "API_KEY", "NASA API Key envar")
+	flag.StringVar(&cfg.NASAAPI.MaxConcurrentEnvar, "nasa-api-max-concurrent-envar", "CONCURRENT_REQUESTS", "NASA API max concurrent requests envar")
 	flag.IntVar(&cfg.NASAAPI.TimeoutInSecs, "nasa-api-timeout-in-secs", 5, "NASA API timeout in secs")
 
 	flag.Parse()
@@ -72,12 +72,12 @@ func (na *NASAAPI) LoadFromEnvar() {
 
 	na.APIKEY = ak
 
-	maxReq := toInt(loadEnvar(na.MaxRequestsEnvar))
+	maxReq := toInt(loadEnvar(na.MaxConcurrentEnvar))
 	if maxReq < 1 {
 		maxReq = nasaDefaultMaxRequests
 	}
 
-	na.MaxRequests = maxReq
+	na.MaxConcurrent = maxReq
 
 }
 

@@ -1,2 +1,3 @@
+vendor/**
 bin/urlcollector
 cmd/__debug_bin

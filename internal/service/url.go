@@ -1,9 +1,9 @@
 package service
 
 import (
-	"gitlab.com/nasapic/base"
-	"gitlab.com/nasapic/urlcollector/internal/transport"
-	"gitlab.com/nasapic/urlcollector/pkg/collector"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/base"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/urlcollector/internal/transport"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/urlcollector/pkg/collector"
 )
 
 type (
@@ -34,6 +34,7 @@ func (urlSvc *URLService) GetBetweenDates(searchReq *transport.SearchRequest) (s
 	}
 
 	result, err := urlSvc.CollectorAPI.GetBetweenDates(searchReq.FromDate(), searchReq.ToDate())
+
 	if err != nil {
 		urlSvc.Log().Debug("URLService GetBetweenDates", "errors", err)
 		return searchRes, err
