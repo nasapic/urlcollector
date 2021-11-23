@@ -20,6 +20,10 @@ func (app *App) NewWebRouter() *base.Router {
 func (app *App) NewJSONAPIRouter() *base.Router {
 	rt := base.NewRouter("json-api-home-router")
 
+	// NOTE: Make these values configurables
+	rt.SetHourlyRate(30)
+	rt.SetDailyRate(50)
+
 	app.addJSONAPICollectorRouter(rt)
 
 	return rt
