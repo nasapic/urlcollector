@@ -7,10 +7,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"gitlab.com/nasapic/base"
-	"gitlab.com/nasapic/urlcollector/internal/app"
-	"gitlab.com/nasapic/urlcollector/internal/service"
-	"gitlab.com/nasapic/urlcollector/pkg/collector/nasa"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/base"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/urlcollector/internal/app"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/urlcollector/internal/service"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/urlcollector/pkg/collector/nasa"
 )
 
 type contextKey string

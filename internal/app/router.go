@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"gitlab.com/nasapic/base"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/base"
 )
 
 type (

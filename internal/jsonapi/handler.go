@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"gitlab.com/nasapic/urlcollector/internal/transport"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/urlcollector/internal/transport"
 )
 
 // SearchURLs endpoint
