@@ -94,6 +94,7 @@ const (
 func NewAPI(opts Options, log base.Logger) *API {
 	return &API{
 		opts: opts,
+		log:  log,
 		client: &httpClient{
 			&http.Client{
 				Timeout: time.Second * time.Duration(opts.TimeoutInSecs),
@@ -102,7 +103,7 @@ func NewAPI(opts Options, log base.Logger) *API {
 	}
 }
 
-func (api API) GetBetweenDates(from, to time.Time) (cr collector.Result, err error) {
+func (api *API) GetBetweenDates(from, to time.Time) (cr collector.Result, err error) {
 	dates := []time.Time{}
 
 	func() error {
@@ -118,8 +119,8 @@ func (api API) GetBetweenDates(from, to time.Time) (cr collector.Result, err err
 
 	max := api.opts.MaxConcurrent
 
-	jobsChan := make(chan Job, max)
-	resultsChan := make(chan JobResult, max)
+	jobsChan := make(chan Job, max*3)
+	resultsChan := make(chan JobResult, max*3)
 
 	// Create API callers
 	for c := 1; c <= max; c++ {
@@ -138,17 +139,21 @@ func (api API) GetBetweenDates(from, to time.Time) (cr collector.Result, err err
 			Date: date,
 		}
 
-		jobsChan <- job
-
-		jobIDs = append(jobIDs, id)
+		select {
+		case jobsChan <- job:
+			jobIDs = append(jobIDs, id)
+		default:
+			err := errors.New("max allowed concurrent requests reached")
+			api.Log().Error(err, "Max allowed concurrent requests reached", "max-value", max)
+		}
 	}
 	close(jobsChan)
 
 	// Collect the results
 	list := []string{}
 	for range jobIDs {
-		res := <-resultsChan
 
+		res := <-resultsChan
 		if res.Error != nil {
 			api.Log().Error(err, "API call error", "error", res.Error, "job-id", res.ID, "picture-date", res.Date)
 			continue
@@ -164,7 +169,7 @@ func (api API) GetBetweenDates(from, to time.Time) (cr collector.Result, err err
 	return cr, nil
 }
 
-func (api API) getByDate(date time.Time) (ar *APIResponse, err error) {
+func (api *API) getByDate(date time.Time) (ar *APIResponse, err error) {
 	if date.IsZero() {
 		return ar, errors.New("Invalid date")
 	}
@@ -173,7 +178,7 @@ func (api API) getByDate(date time.Time) (ar *APIResponse, err error) {
 
 	url := fmt.Sprintf("%s/?api_key=%s&date=%s", baseURL, api.opts.APIKey, dateStr)
 
-	fmt.Println(url)
+	api.Log().Debug("Getting URL", "url", url)
 
 	res, err := api.client.get(url)
 	if err != nil {
@@ -209,7 +214,7 @@ func (api API) caller(id uuid.UUID, jobs <-chan Job, results chan<- JobResult) {
 	}
 }
 
-func (api API) Log() base.Logger {
+func (api *API) Log() base.Logger {
 	return api.log
 }
 
