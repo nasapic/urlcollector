@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"sync"
 
-	"gitlab.com/nasapic/base"
-	"gitlab.com/nasapic/urlcollector/internal/jsonapi"
-	"gitlab.com/nasapic/urlcollector/internal/service"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/base"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/urlcollector/internal/jsonapi"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/urlcollector/internal/service"
 )
 
 type (
@@ -23,10 +23,14 @@ type (
 
 // NewApp initializes new App worker instance
 func NewApp(name string, cfg *Config, urlSvc *service.URLService, log base.Logger) *App {
+	opts := &jsonapi.Options{
+		MaxConcurrent: cfg.MaxConcurrent,
+	}
+
 	app := App{
 		App:             base.NewApp(name, log),
 		Config:          cfg,
-		JSONAPIEndpoint: jsonapi.NewEndpoint("json-api-endpoint", urlSvc, log),
+		JSONAPIEndpoint: jsonapi.NewEndpoint("json-api-endpoint", urlSvc, opts, log),
 	}
 
 	// Router

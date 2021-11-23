@@ -7,10 +7,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	"gitlab.com/nasapic/base"
-	"gitlab.com/nasapic/urlcollector/internal/app"
-	"gitlab.com/nasapic/urlcollector/internal/service"
-	"gitlab.com/nasapic/urlcollector/pkg/collector/nasa"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/base"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/urlcollector/internal/app"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/urlcollector/internal/service"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/urlcollector/pkg/collector/nasa"
 )
 
 type contextKey string
@@ -36,9 +36,9 @@ func main() {
 	// NASA API
 	nasaAPI := nasa.NewAPI(nasa.Options{
 		APIKey:        cfg.NASAAPI.APIKEY,
-		MaxRequests:   cfg.NASAAPI.MaxRequests,
 		TimeoutInSecs: cfg.NASAAPI.TimeoutInSecs,
-	})
+		MaxConcurrent: cfg.NASAAPI.MaxConcurrent,
+	}, log)
 
 	// Service
 	svc := service.NewURLService("url-service", nasaAPI, log)
@@ -52,7 +52,7 @@ func main() {
 	// Start service
 	a.Start()
 
-	log.Info("Service stoped!", "status", "off")
+	log.Info("Service stoped!")
 }
 
 func exit(err error) {

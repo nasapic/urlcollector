@@ -1,7 +1,9 @@
 package transport
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -18,6 +20,10 @@ type (
 
 	SearchResponse struct {
 		URLS []string `json:"urls"`
+	}
+
+	ErrorResponse struct {
+		Error string `json:"error"`
 	}
 )
 
@@ -130,6 +136,27 @@ func toTime(dateString string) (date time.Time, err error) {
 
 	return date, nil
 }
+
+// SearchResponse
+func (sr *SearchResponse) Marshall() (jsonStr string, err error) {
+	jsonBytes, err := json.MarshalIndent(sr, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("error marshallin search response: %w", err)
+	}
+
+	return string(jsonBytes), nil
+}
+
+func (er *ErrorResponse) Marshall() (jsonStr string, err error) {
+	jsonBytes, err := json.MarshalIndent(er, "", "  ")
+	if err != nil {
+		return "", fmt.Errorf("error marshallin search response: %w", err)
+	}
+
+	return string(jsonBytes), nil
+}
+
+// Helpers
 
 func toTimeString(date time.Time) (dateString string) {
 	return date.Format(dateFormat)
