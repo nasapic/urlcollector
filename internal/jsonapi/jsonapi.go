@@ -10,16 +10,18 @@ type (
 		*base.Endpoint
 
 		URLService *service.URLService
+		Opts       *Options
 	}
 
 	Options struct {
-		MaxRequestesPerSec int
+		MaxConcurrent int
 	}
 )
 
-func NewEndpoint(name string, urlSvc *service.URLService, opts Options, log base.Logger) *Endpoint {
+func NewEndpoint(name string, urlSvc *service.URLService, opts *Options, log base.Logger) *Endpoint {
 	return &Endpoint{
 		Endpoint:   base.NewEndpoint(name, log),
 		URLService: urlSvc,
+		Opts:       opts,
 	}
 }

@@ -23,8 +23,8 @@ type (
 
 // NewApp initializes new App worker instance
 func NewApp(name string, cfg *Config, urlSvc *service.URLService, log base.Logger) *App {
-	opts := jsonapi.Options{
-		MaxRequestesPerSec: cfg.MaxRequests,
+	opts := &jsonapi.Options{
+		MaxConcurrent: cfg.MaxConcurrent,
 	}
 
 	app := App{
