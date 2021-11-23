@@ -48,7 +48,7 @@ func LoadConfig() *Config {
 	flag.StringVar(&cfg.Logging.Level, "logging-level", "error", "Logging level")
 
 	// NASA API
-	flag.StringVar(&cfg.NASAAPI.APIKEYEnvar, "nasa-api-key-envar", "", "NASA API Key envar")
+	flag.StringVar(&cfg.NASAAPI.APIKEYEnvar, "nasa-api-key-envar", "API_KEY", "NASA API Key envar")
 	flag.StringVar(&cfg.NASAAPI.MaxConcurrentEnvar, "nasa-api-max-concurrent-envar", "CONCURRENT_REQUESTS", "NASA API max concurrent requests envar")
 	flag.IntVar(&cfg.NASAAPI.TimeoutInSecs, "nasa-api-timeout-in-secs", 5, "NASA API timeout in secs")
 
