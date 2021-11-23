@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"sync"
 
-	"gitlab.com/nasapic/base"
-	"gitlab.com/nasapic/urlcollector/internal/jsonapi"
-	"gitlab.com/nasapic/urlcollector/internal/service"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/base"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/urlcollector/internal/jsonapi"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/urlcollector/internal/service"
 )
 
 type (

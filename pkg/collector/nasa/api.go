@@ -26,8 +26,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"gitlab.com/nasapic/base"
-	"gitlab.com/nasapic/urlcollector/pkg/collector"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/base"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/urlcollector/pkg/collector"
 )
 
 type (
@@ -87,8 +87,9 @@ type (
 )
 
 const (
-	baseURL           = "https://api.nasa.gov/planetary/apod"
-	dateFormat string = "2006-01-02"
+	baseURL                   = "https://api.nasa.gov/planetary/apod"
+	dateFormat         string = "2006-01-02"
+	chanClearanceIndex        = 15
 )
 
 func NewAPI(opts Options, log base.Logger) *API {
@@ -117,10 +118,11 @@ func (api *API) GetBetweenDates(from, to time.Time) (cr collector.Result, err er
 		}
 	}()
 
+	chanSize := chanSafeSize(len(dates))
 	max := api.opts.MaxConcurrent
 
-	jobsChan := make(chan Job, max*3)
-	resultsChan := make(chan JobResult, max*3)
+	jobsChan := make(chan Job, chanSize)
+	resultsChan := make(chan JobResult, chanSize)
 
 	// Create API callers
 	for c := 1; c <= max; c++ {
@@ -149,7 +151,7 @@ func (api *API) GetBetweenDates(from, to time.Time) (cr collector.Result, err er
 	}
 	close(jobsChan)
 
-	// Collect the results
+	// Collect results
 	list := []string{}
 	for range jobIDs {
 
@@ -249,6 +251,10 @@ func dateRangeFunc(from, to time.Time) (drFunc func() time.Time) {
 		from = from.AddDate(0, 0, 1)
 		return date
 	}
+}
+
+func chanSafeSize(toProcQty int) int {
+	return toProcQty * (1 + chanClearanceIndex/100)
 }
 
 func toDateString(date time.Time) (dateString string) {

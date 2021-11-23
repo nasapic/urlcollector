@@ -1,9 +1,9 @@
 package service
 
 import (
-	"gitlab.com/nasapic/base"
-	"gitlab.com/nasapic/urlcollector/internal/transport"
-	"gitlab.com/nasapic/urlcollector/pkg/collector"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/base"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/urlcollector/internal/transport"
+	"gitlab.com/QWRyaWFuIEdvR29BcHBzIE5BU0E/urlcollector/pkg/collector"
 )
 
 type (
