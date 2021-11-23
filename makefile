@@ -1,7 +1,7 @@
 DEV_TAG=dev
 STG_TAG=stage
 PROD_TAG=v0.0.1
-IMAGE_NAME=nasapic/urlcollector
+IMAGE_NAME=nasapic-urlcollector
 
 # Names
 BINARY_NAME=urlcollector
@@ -11,7 +11,7 @@ BINARY_UNIX=$(BINARY_NAME)_unix
 CONTAINER_NAME=nasapi_urlcollector
 
 # Accounts
-DOCKER_ACCOUNT=kadrianus
+DOCKER_ACCOUNT=adrianpksw
 
 .PHONY: mod-tidy
 mod-tidy:
@@ -48,7 +48,7 @@ docker-build-dev:
 	make build
 	docker login
 	docker build -f deployments/docker/Dockerfile.dev -t ${DOCKER_ACCOUNT}/$(IMAGE_NAME):$(DEV_TAG) .
-	#docker push ${DOCKER_ACCOUNT}/$(IMAGE_NAME):$(DEV_TAG)
+	docker push ${DOCKER_ACCOUNT}/$(IMAGE_NAME):$(DEV_TAG)
 
 .PHONY: docker-build-stg
 docker-build-stg:
