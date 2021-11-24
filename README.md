@@ -36,6 +36,11 @@ Error
 }
 ```
 
+## Tests
+```shell
+$ make test
+```
+
 ## Notes
 From NASA API docs
 ```text
@@ -46,7 +51,6 @@ This API key can be used for initially exploring APIs prior to signing up, but i
   Daily Limit: 50 requests per IP address per day
 ```
 
-
 # TODO
 * Implement context logger
 * Implement request tracing
@@ -54,3 +58,9 @@ This API key can be used for initially exploring APIs prior to signing up, but i
 * Implement liveness and readiness probe
 * Implement a hypothetical (PoC) mechanism to make calls to the mediadownloader service (gRPC?)
 * Add tests
+  * Wrap library base HTTP client in order to mock calls for predictable responses or lack thereof.
+  * Also consider latency aspect.
+
+* NASA library eventually discards responses if it exceeds the concurrency threshold.
+  * Analyze another batching strategy.
+  * Incidence in testing 
