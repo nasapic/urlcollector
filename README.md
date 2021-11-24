@@ -1,7 +1,22 @@
 # URLCollector
 
 ## Description
-[TODO: Description]
+A NASA picture URLs collector API.
+
+## Launch
+```shell
+$ make make docker-run-dev
+```
+
+# Stop
+```shell
+$ make docker-stop-dev
+```
+
+# Restart
+```shell
+$ make docker-start-dev
+```
 
 # Sample output
 Happy path
@@ -12,8 +27,10 @@ Happy path
     "https://apod.nasa.gov/apod/image/2001/OrionTrees123019Westlake1024.jpg"
   ]
 }
+```
 
-# Error
+Error
+```json
 {
   "error": "'from' date should be prior to 'to' date, 'to' date should be after 'from' date"
 }
