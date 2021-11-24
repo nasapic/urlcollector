@@ -107,6 +107,10 @@ func NewAPI(opts Options, log base.Logger) *API {
 func (api *API) GetBetweenDates(from, to time.Time) (cr collector.Result, err error) {
 	dates := []time.Time{}
 
+	if to.Before(from) {
+		return Result{}, errors.New("invalid date range")
+	}
+
 	func() error {
 		for dateElement := rangeDates(from, to); ; {
 			date := dateElement()
@@ -185,6 +189,10 @@ func (api *API) getByDate(date time.Time) (ar *APIResponse, err error) {
 	res, err := api.client.get(url)
 	if err != nil {
 		return ar, fmt.Errorf("Error retrievieng picture URL: %w", err)
+	}
+
+	if res.StatusCode != http.StatusOK {
+		return ar, fmt.Errorf("Non OK response: %w", err)
 	}
 
 	defer res.Body.Close()
