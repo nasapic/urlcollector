@@ -68,19 +68,34 @@ func TestSomething(t *testing.T) {
 				},
 			},
 		},
-		// {
-		// 	Name: "TestValidLongRange",
-		// 	SetupData: setupData{
-		// 		API: api,
-		// 	},
-		// 	AssertFn: verifyAssertion,
-		// 	AssertData: &assertionData{
-		// 		expected: &assertionItem{
-		// 			Result: collector.Result{},
-		// 			Err:    nil,
-		// 		},
-		// 	},
-		// },
+		{
+			Name: "TestValidMediumRange",
+			SetupData: &setupData{
+				API:  api,
+				From: time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC),
+				To:   time.Date(2020, time.January, 10, 0, 0, 0, 0, time.UTC),
+			},
+			AssertFn: verifyAssertion,
+			AssertData: assertionData{
+				expected: assertionItem{
+					Result: &Result{
+						list: []string{
+							"https://apod.nasa.gov/apod/image/2001/BetelgeuseImagined_EsoCalcada_960.jpg",
+							"https://apod.nasa.gov/apod/image/2001/OrionTrees123019Westlake1024.jpg",
+							"https://apod.nasa.gov/apod/image/2001/aurora_vetter_1080.jpg",
+							"https://apod.nasa.gov/apod/image/2001/aurora_iss052e007857_1024.jpg",
+							"https://apod.nasa.gov/apod/image/2001/QuadrantidsChineseGreatWall_1067.jpg",
+							"https://apod.nasa.gov/apod/image/2001/JupiterClouds_JunoGill_960.jpg",
+							"https://apod.nasa.gov/apod/image/2001/IC405hp_ColesHelm_960.jpg",
+							"https://apod.nasa.gov/apod/image/2001/NGC1532-final3_1024r.jpg",
+							"https://apod.nasa.gov/apod/image/2001/peri-api-sun1024.jpg",
+							"https://apod.nasa.gov/apod/image/2001/NacreousPMHeden.jpg",
+						},
+					},
+					Err: nil,
+				},
+			},
+		},
 		// {
 		// 	Name: "TestToDateBeforeFromDate",
 		// 	SetupData: setupData{
