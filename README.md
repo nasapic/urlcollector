@@ -36,6 +36,11 @@ Error
 }
 ```
 
+## Tests
+```shell
+$ make test
+```
+
 ## Notes
 From NASA API docs
 ```text
