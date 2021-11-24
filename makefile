@@ -39,6 +39,10 @@ run:
 	make setapikey
 	./bin/urlcollector -json-api-port 8080 -nasa-api-key-envar API_KEY -logging-level all
 
+.PHONY: test
+test:
+	make -f makefile.test test-selected
+
 .PHONY: setapikey
 setsampleapikey:
 	export API_KEY="DEMO_KEY"
@@ -85,6 +89,9 @@ docker-start-dev:
 .PHONY: docker-stop-dev
 docker-stop-dev:
 	docker stop ${CONTAINER_NAME}
+
+spacer:
+	@echo "\n"
 
 port8080-list:
 	lsof -i :8080

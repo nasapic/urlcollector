@@ -1,0 +1,10 @@
+# Tests
+
+test-selected:
+	clear
+	make -f makefile.test test-nasa-api
+	@make spacer
+
+## NASA API
+test-nasa-api:
+	go test -v -run TestBase -count=1 -timeout=5s ./pkg/collector/nasa/api_test.go ./pkg/collector/nasa/api.go
