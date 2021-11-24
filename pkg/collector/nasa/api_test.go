@@ -1,6 +1,7 @@
 package nasa
 
 import (
+	"errors"
 	"testing"
 	"time"
 
@@ -44,7 +45,7 @@ var (
 	log = base.NewLogger("error", "urlcollector-test", "json")
 )
 
-func TestSomething(t *testing.T) {
+func TestBase(t *testing.T) {
 	api := NewAPI(opts, log)
 
 	testCases := []testCase{
@@ -96,19 +97,23 @@ func TestSomething(t *testing.T) {
 				},
 			},
 		},
-		// {
-		// 	Name: "TestToDateBeforeFromDate",
-		// 	SetupData: setupData{
-		// 		API: api,
-		// 	},
-		// 	AssertFn: verifyAssertion,
-		// 	AssertData: &assertionData{
-		// 		expected: &assertionItem{
-		// 			Result: collector.Result{},
-		// 			Err:    nil,
-		// 		},
-		// 	},
-		// },
+		{
+			Name: "TestToDateBeforeFromDate",
+			SetupData: &setupData{
+				API:  api,
+				From: time.Date(2020, time.January, 2, 0, 0, 0, 0, time.UTC),
+				To:   time.Date(2020, time.January, 1, 0, 0, 0, 0, time.UTC),
+			},
+			AssertFn: verifyAssertion,
+			AssertData: assertionData{
+				expected: assertionItem{
+					Result: &Result{
+						list: []string{},
+					},
+					Err: errors.New("invalid date range"),
+				},
+			},
+		},
 	}
 	runTests(t, testCases)
 }
@@ -148,10 +153,21 @@ func verifyAssertion(t *testing.T, ad assertionData) {
 }
 
 func assertExpected(ad assertionData) (ok bool) {
-	eval0 := containsSameElements(ad.actual.Result.GetList(), ad.expected.Result.GetList())
-	eval1 := ad.actual.Err == ad.expected.Err
+	cond0 := true
+	cond1 := true
 
-	return eval0 && eval1
+	evalErrors := !(ad.actual.Err == nil && ad.expected.Err == nil)
+	evalResponse := ad.expected.Err != nil
+
+	if evalErrors {
+		cond0 = ad.actual.Err.Error() == ad.expected.Err.Error()
+	}
+
+	if evalResponse {
+		cond1 = containsSameElements(ad.actual.Result.GetList(), ad.expected.Result.GetList())
+	}
+
+	return cond0 && cond1
 }
 
 func containsSameElements(list, toCompare []string) bool {
